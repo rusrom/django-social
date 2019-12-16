@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit your account{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-6 mx-auto my-3">
+            <h1>Edit your account</h1>
+            <p>You can edit your account using the following form:</p>
+            <form action="." method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include 'account/snippets/form_render.html' with form=user_form %}
+                {% include 'account/snippets/form_render.html' with form=profile_form %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

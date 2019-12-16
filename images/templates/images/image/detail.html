@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}{{ image.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ image.title }}</h1>
+    <div class="row">
+
+        <div class="col-6">
+            {% thumbnail image.image '350' as im %}
+                <a href="{{ image.image.url }}" target="_blank">
+                    <img src="{{ im.url }}" class="image-detail">
+                </a>
+            {% endthumbnail %}
+        </div>
+
+        <div class="col-6">
+            {% with total_likes=image.users_likes.count users_like=image.users_likes.all %}
+                <div class="image-info">
+                    <div>
+                        <span class="count">
+                          {{ total_views }} view{{ total_views|pluralize }}
+                        </span>
+                        <span class="count">
+                            <span class="total">{{ total_likes }}</span>
+                            like{{ total_likes|pluralize }}
+                        </span>
+                        <a href="#" data-id="{{ image.id }}" data-action="{% if request.user in users_like %}un{% endif %}like" class="btn btn-primary like">
+                            {% if request.user in users_like %}
+                                Unlike
+                            {% else %}
+                                Like
+                            {% endif %}
+                        </a>
+                    </div>
+
+                    {{ image.description|linebreaks }}
+                </div>
+                <div class="image-likes">
+                    {% for user in users_like %}
+                            {{ user.first_name }}{% if not forloop.last %}, {% endif %}
+{#                        <div>#}
+{#                            {% comment %}<img src="{{ user.profile.photo.url }}">{% endcomment %}#}
+{#                            <p>{{ user.first_name }}</p>#}
+{#                        </div>#}
+                    {% empty %}
+                        Nobody likes this image yet.
+                    {% endfor %}
+                </div>
+            {% endwith %}
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block domready %}
+    $('a.like').click(function (e) {
+        e.preventDefault();
+        $.post('{% url "images:like" %}',
+            {
+                id: $(this).data('id'),
+                action: $(this).data('action')
+            },
+            function (data) {
+                if (data['status'] == 'ok') {
+                    var previous_action = $('a.like').data('action');
+
+                    // toggle data-action
+                    $('a.like').data('action', previous_action == 'like' ? 'unlike' : 'like');
+                    // toggle link text
+                    $('a.like').text(previous_action == 'like' ? 'Unlike' : 'Like');
+
+                    // update total likes
+                    var previous_likes = parseInt($('span.count .total').text());
+                    $('span.count .total').text(previous_action == 'like' ? previous_likes + 1 : previous_likes - 1);
+                }
+            }
+        );
+    });
+{% endblock %}

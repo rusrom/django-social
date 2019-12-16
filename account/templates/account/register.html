@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Form{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-6 mx-auto mt-3">
+            <h1 class="text-center">Create new account</h1>
+            <p>Please, sign up using the following form:</p>
+            {% include 'registration/snippets/auth_form.html' with form=user_form %}
+        </div>
+    </div>
+{% endblock %}
